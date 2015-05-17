@@ -55,7 +55,7 @@ namespace Bokka
                                           new MovePoint(new Point(-31.0f, 31.2f), new Point(-32.2f, 32.2f)),
                                           new MovePoint(new Point(-33.8f, 29.1f), new Point(-33.6f, 27.4f)),
                                           new MovePoint(new Point(-17.3f, 12.1f), new Point(-19.0f, 10.8f)),
-                                          new MovePoint(new Point(  6.2f, -4.5f), new Point(  2.0f, -5.3f)),
+                                          new MovePoint(new Point(  5.9f, -6.7f), new Point(  1.8f, -5.1f)),
                                         };
         private EliteAPI api;
         private Settings settings;
@@ -143,6 +143,11 @@ namespace Bokka
             btnExec.Text = "開　　始";
             lblMessage.Text = string.Empty;
         }
+        /// <summary>
+        /// メニューインデックスクリアボタン Clickイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnMenuIndexClear_Click(object sender, EventArgs e)
         {
             settings.MenuIndexWorksCall = -1;
@@ -151,6 +156,92 @@ namespace Bokka
             txtMenuIndexWorksCall.Value = settings.MenuIndexWorksCall;
             txtMenuIndexArea.Value = settings.MenuIndexArea;
             txtMenuIndexBivouac.Value = settings.MenuIndexBivouac;
+        }
+        /// <summary>
+        /// 開始ボタン　クリックイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnExec_Click(object sender, EventArgs e)
+        {
+            if (isExec)
+            {
+                stop();
+            }
+            else
+            {
+                saveSettings();
+                start();
+            }
+        }
+        /// <summary>
+        /// 開始
+        /// </summary>
+        private void start()
+        {
+
+            btnExec.Text = "停　　止";
+            isExec = true;
+            wkBokka.RunWorkerAsync();
+        }
+        /// <summary>
+        /// 停止
+        /// </summary>
+        private void stop()
+        {
+            if (wkBokka.IsBusy) wkBokka.CancelAsync();
+            //setMessage("停止しました", MessageKind.Normal);
+
+            btnExec.Text = "開　　始";
+            isExec = false;
+        }
+        /// <summary>
+        /// モニタ用タイマーイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void timMonitor_Tick(object sender, EventArgs e)
+        {
+            List<string> regStr = new List<string>();
+            if (api.Menu.IsMenuOpen)
+            {
+                if (MiscTools.GetRegexString(api.Dialog.GetDialog().Question, Constants.DIALOG_QUESTION_COU1, out regStr))
+                {
+                    remainTicket = int.Parse(regStr[0]);
+                    lblTicket.Text = regStr[0];
+                }
+                if (MiscTools.GetRegexString(api.Dialog.GetDialog().Question, Constants.DIALOG_QUESTION_COU4, out regStr))
+                {
+                    remainTicket = int.Parse(regStr[0]);
+                    lblTicket.Text = regStr[0];
+                }
+                if (MiscTools.GetRegexString(api.Dialog.GetDialog().Question, Constants.DIALOG_QUESTION_WAYPOINT1, out regStr))
+                {
+                    remainCp = int.Parse(regStr[0]);
+                    lblCP.Text = int.Parse(regStr[0]).ToString("#,0");
+                }
+
+            }
+            EliteAPI.ChatEntry cl = api.Chat.GetNextChatLine();
+            while (cl != null)
+            {
+                Console.WriteLine(string.Format("type:{0} idx1:{1} idx2:{2} {3}", cl.ChatType, cl.Index1, cl.Index2, cl.Text));
+                if ((cl.ChatType == 152 || cl.ChatType == 144) &&
+                    MiscTools.GetRegexString(cl.Text, Constants.CHAT_TICKET_REMAIN, out regStr))
+                {
+                    remainTicket = int.Parse(regStr[0]);
+                    lblTicket.Text = regStr[0];
+                }
+                if (cl.ChatType == 148 && MiscTools.GetRegexString(cl.Text, Constants.CHAT_CP_REMAIN, out regStr))
+                {
+                    if (lblCP.Text != "--")
+                    {
+                        remainCp -= int.Parse(regStr[0]);
+                        lblCP.Text = remainCp.ToString("#,0");
+                    }
+                }
+                cl = api.Chat.GetNextChatLine();
+            }
         }
         #region コントロール値変更
         private void cmbTicketUseEach_SelectedIndexChanged(object sender, EventArgs e)
@@ -179,45 +270,6 @@ namespace Bokka
         }
         #endregion
         #endregion
-
-        /// <summary>
-        /// 開始ボタン　クリックイベント
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void btnExec_Click(object sender, EventArgs e)
-        {
-            if (isExec)
-            {
-                stop();
-            }
-            else
-            {
-                saveSettings();
-                start();
-            }
-        }
-        /// <summary>
-        /// 開始
-        /// </summary>
-        private void start()
-        {
-            
-            btnExec.Text = "停　　止";
-            isExec = true;
-            wkBokka.RunWorkerAsync();
-        }
-        /// <summary>
-        /// 停止
-        /// </summary>
-        private void stop()
-        {
-            if(wkBokka.IsBusy) wkBokka.CancelAsync();
-            //setMessage("停止しました", MessageKind.Normal);
-
-            btnExec.Text = "開　　始";
-            isExec = false;
-        }
 
         #region メイン処理
         /// <summary>
@@ -490,6 +542,10 @@ namespace Bokka
             {
                 api.Target.SetTarget(iNpcIndex);
                 Thread.Sleep(settings.BaseWait);
+                //api.ThirdParty.KeyPress(EliteMMO.API.Keys.TAB);
+                //Thread.Sleep(settings.BaseWait);
+                //EliteAPI.TargetInfo target = api.Target.GetTargetInfo();
+                //Console.WriteLine("NowTarget:{0} Target:{1}", api.Target.GetTargetInfo().TargetIndex,iNpcIndex);
             }
         }
         /// <summary>
@@ -905,47 +961,5 @@ namespace Bokka
             var t = Task.Factory.StartNew(() => moveCouToWaypoint(WayDirectionKind.WaypointToCou));
         }
         #endregion
-
-        private void timMonitor_Tick(object sender, EventArgs e)
-        {
-            List<string> regStr = new List<string>();
-            if (api.Menu.IsMenuOpen)
-            {
-                if (MiscTools.GetRegexString(api.Dialog.GetDialog().Question, Constants.DIALOG_QUESTION_COU1, out regStr))
-                {
-                    remainTicket = int.Parse(regStr[0]);
-                    lblTicket.Text = regStr[0];
-                }
-                if (MiscTools.GetRegexString(api.Dialog.GetDialog().Question, Constants.DIALOG_QUESTION_COU4, out regStr))
-                {
-                    remainTicket = int.Parse(regStr[0]);
-                    lblTicket.Text = regStr[0];
-                }
-                if (MiscTools.GetRegexString(api.Dialog.GetDialog().Question, Constants.DIALOG_QUESTION_WAYPOINT1, out regStr))
-                {
-                    remainCp = int.Parse(regStr[0]);
-                    lblCP.Text = int.Parse(regStr[0]).ToString("#,0");
-                }
-
-            }
-            EliteAPI.ChatEntry cl = api.Chat.GetNextChatLine();
-            while (cl != null)
-            {
-                Console.WriteLine(string.Format("type:{0} idx1:{1} idx2:{2} {3}",cl.ChatType, cl.Index1, cl.Index2, cl.Text));
-                if (cl.ChatType == 144 && MiscTools.GetRegexString(cl.Text, "([0-9]*)枚になりました。", out regStr))
-                {
-                    remainTicket = int.Parse(regStr[0]);
-                    lblTicket.Text = regStr[0];
-                }
-                if (cl.ChatType == 148 && MiscTools.GetRegexString(cl.Text, "([0-9]*)cpを消鳩てワープします。", out regStr))
-                {
-                    remainCp -= int.Parse(regStr[0]);
-                    lblCP.Text = remainCp.ToString("#,0");
-                }
-                cl = api.Chat.GetNextChatLine();
-            }
-        }
-
-
     }
 }

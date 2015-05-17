@@ -19,5 +19,7 @@ namespace Bokka
         public const string DIALOG_QUESTION_COU5 = "([0-9]*)枚でよろしいですね？";
         public const string DIALOG_QUESTION_COU6 = "どのワークスコールを報告しますか？";
         public const string DIALOG_QUESTION_WAYPOINT1 = "ワープ先を選択（所有ポイント:([0-9]*)cp）";
+        public const string CHAT_TICKET_REMAIN = "([0-9]*)枚になりました。";
+        public const string CHAT_CP_REMAIN = "([0-9]*)cpを消鳩てワープします。";
     }
 }

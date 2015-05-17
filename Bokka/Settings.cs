@@ -36,7 +36,7 @@ namespace Bokka
         public Settings(string iPlayerName)
         {
             //設定読み込み
-            if (iPlayerName.Length > 0) Load(iPlayerName);
+            Load(iPlayerName);
         }
         /// <summary>
         /// 設定読み込み
