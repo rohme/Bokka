@@ -335,7 +335,7 @@ namespace Bokka
                 else
                 {
                     setMessage("行き先を選択", MessageKind.Warning);
-                    SystemSounds.Question.Play();
+                    SystemSounds.Asterisk.Play();
                     settings.MenuIndexWorksCall = getSelectedDialogIndex();
                     setNumericUpDown(txtMenuIndexWorksCall, settings.MenuIndexWorksCall);
                     setMessage("ワークスコール受領中", MessageKind.Execute);
@@ -380,7 +380,7 @@ namespace Bokka
                 else
                 {
                     setMessage("エリアを選択してください", MessageKind.Warning);
-                    SystemSounds.Question.Play();
+                    SystemSounds.Asterisk.Play();
                     settings.MenuIndexArea = getSelectedDialogIndex();
                     setNumericUpDown(txtMenuIndexArea, settings.MenuIndexArea);
                     setMessage("ワープ先選択中", MessageKind.Execute);
@@ -393,7 +393,7 @@ namespace Bokka
                 else
                 {
                     setMessage("ビバックを選択してください", MessageKind.Warning);
-                    SystemSounds.Question.Play();
+                    SystemSounds.Asterisk.Play();
                     settings.MenuIndexBivouac = getSelectedDialogIndex();
                     setNumericUpDown(txtMenuIndexBivouac, settings.MenuIndexBivouac);
                     setMessage("ワープ先選択中", MessageKind.Execute);
@@ -416,7 +416,8 @@ namespace Bokka
                 {
                     EliteAPI.XiEntity adminEntity = api.Entity.GetEntity(adminIndex);
                     setMessage("Waypointまで移動中", MessageKind.Execute);
-                    moveTo(adminEntity.X, adminEntity.Z, (float)(0.5f + (1.5f * rnd.NextDouble())));
+                    //moveTo(adminEntity.X, adminEntity.Z, (float)(0.5f + (1.5f * rnd.NextDouble())));
+                    moveTo(adminEntity.X, adminEntity.Z, (float)(4.0f + (1.0f * rnd.NextDouble())));
                     setMessage("Administratorへ物資を渡し中", MessageKind.Execute);
                     faceTo(adminEntity.X, adminEntity.Z);
                     talkToNpcWaitTalkFinish(adminIndex);
@@ -442,7 +443,10 @@ namespace Bokka
                 {
                     EliteAPI.XiEntity waypointEntity = api.Entity.GetEntity(waypointIndex);
                     setMessage("Waypointまで移動中", MessageKind.Execute);
-                    moveTo(waypointEntity.X, waypointEntity.Z, (float)(0.5f + (1.5f * rnd.NextDouble())));
+                    //moveTo(waypointEntity.X, waypointEntity.Z, (float)(0.5f + (1.5f * rnd.NextDouble())));
+                    moveTo(waypointEntity.X, waypointEntity.Z, (float)(4.0f + (1.0f * rnd.NextDouble())));
+                    Thread.Sleep(500);
+                    faceTo(waypointEntity.X, waypointEntity.Z);
                 }
                 else
                 {
@@ -514,6 +518,7 @@ namespace Bokka
             }
             else
             {
+                closeMenu();
                 SystemSounds.Asterisk.Play();
                 // 処理結果の表示
                 //this.Text = e.Result.ToString();
@@ -554,7 +559,11 @@ namespace Bokka
         /// <param name="iNpcIndex"></param>
         private void talkToNpcWaitDialogOpen(int iNpcIndex)
         {
-            //if (api.Player.ViewMode != (int)ViewMode.ThirdPerson) api.Player.ViewMode = (int)ViewMode.ThirdPerson;
+            if (api.Player.ViewMode != (int)ViewMode.ThirdPerson)
+            {
+                api.Player.ViewMode = (int)ViewMode.ThirdPerson;
+                Thread.Sleep(1000);
+            }
 
             setTarget(iNpcIndex);
             while (!api.Menu.IsMenuOpen)
@@ -569,7 +578,11 @@ namespace Bokka
         /// <param name="iNpcIndex"></param>
         private void talkToNpcWaitTalkFinish(int iNpcIndex)
         {
-            //if (api.Player.ViewMode != (int)ViewMode.ThirdPerson) api.Player.ViewMode = (int)ViewMode.ThirdPerson;
+            if (api.Player.ViewMode != (int)ViewMode.ThirdPerson)
+            {
+                api.Player.ViewMode = (int)ViewMode.ThirdPerson;
+                Thread.Sleep(1000);
+            }
 
             setTarget(iNpcIndex);
             while (api.Player.Status != (uint)Status.Event)
@@ -731,7 +744,6 @@ namespace Bokka
         /// <param name="iNpcIndex">NpcIndex</param>
         private void faceTo(int iNpcIndex)
         {
-            if (api.Player.ViewMode != (int)ViewMode.FirstPerson) api.Player.ViewMode = (int)ViewMode.FirstPerson;
             EliteAPI.XiEntity ent = api.Entity.GetEntity(iNpcIndex);
             faceTo(ent.X, ent.Z);
         }
@@ -742,6 +754,12 @@ namespace Bokka
         /// <param name="iZ">座標Z</param>
         private void faceTo(float iX, float iZ)
         {
+            if (api.Player.ViewMode != (int)ViewMode.FirstPerson)
+            {
+                api.Player.ViewMode = (int)ViewMode.FirstPerson;
+                Thread.Sleep(1000);
+            }
+
             var p = api.Entity.GetLocalPlayer();
             var angle = (byte)(Math.Atan((iZ - p.Z) / (iX - p.X)) * -(128.0f / Math.PI));
             if (p.X > iX) angle += 128;
@@ -960,6 +978,11 @@ namespace Bokka
         {
             var t = Task.Factory.StartNew(() => moveCouToWaypoint(WayDirectionKind.WaypointToCou));
         }
+        private void btnStop_Click(object sender, EventArgs e)
+        {
+            api.ThirdParty.KeyPress((byte)KeyCode.NP_Number8);
+        }
         #endregion
+
     }
 }

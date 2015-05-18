@@ -87,6 +87,7 @@
             this.lblDialogID = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
             this.lblLoginStatus = new System.Windows.Forms.Label();
+            this.btnStop = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtLimitCp)).BeginInit();
@@ -379,7 +380,7 @@
             this.lblMessage});
             this.toolStrip.Location = new System.Drawing.Point(0, 260);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(242, 22);
+            this.toolStrip.Size = new System.Drawing.Size(239, 22);
             this.toolStrip.TabIndex = 4;
             this.toolStrip.Text = "statusStrip1";
             // 
@@ -691,11 +692,22 @@
             this.lblLoginStatus.TabIndex = 3;
             this.lblLoginStatus.Text = "XX";
             // 
+            // btnStop
+            // 
+            this.btnStop.Location = new System.Drawing.Point(372, 202);
+            this.btnStop.Name = "btnStop";
+            this.btnStop.Size = new System.Drawing.Size(75, 23);
+            this.btnStop.TabIndex = 10;
+            this.btnStop.Text = "Stop";
+            this.btnStop.UseVisualStyleBackColor = true;
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(242, 282);
+            this.ClientSize = new System.Drawing.Size(239, 282);
+            this.Controls.Add(this.btnStop);
             this.Controls.Add(this.btnWaypointToCOU);
             this.Controls.Add(this.btnCouToWaypoint);
             this.Controls.Add(this.txtDialogQuestion);
@@ -819,6 +831,7 @@
         private System.Windows.Forms.Label lblDialogID;
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.Label lblLoginStatus;
+        private System.Windows.Forms.Button btnStop;
     }
 }
 
