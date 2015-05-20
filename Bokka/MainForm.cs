@@ -341,7 +341,11 @@ namespace Bokka
                     setMessage("ワークスコール受領中", MessageKind.Execute);
                 }
                 waitDialogTitle(Constants.DIALOG_QUESTION_COU4); //何枚使用しますか？（チケット:([0-9]*)枚）
-                ushort indexTicket = (ushort)(settings.TicketUseEach - 1);
+                ushort indexTicket = 0;
+                if (remainTicket >= settings.TicketUseEach)
+                    indexTicket = (ushort)(settings.TicketUseEach - 1);
+                else
+                    indexTicket = (ushort)(remainTicket - 1);
                 setDialogIndex(indexTicket, 3);
                 waitDialogTitle(Constants.DIALOG_QUESTION_COU5); //([0-9]*)枚でよろしいですね？
                 setDialogIndex(0, 3);
