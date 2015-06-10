@@ -36,6 +36,7 @@
             this.lblCP = new System.Windows.Forms.Label();
             this.cmbTicketUseEach = new System.Windows.Forms.ComboBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.chkKamihr3 = new System.Windows.Forms.CheckBox();
             this.label4 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.txtLimitCp = new System.Windows.Forms.NumericUpDown();
@@ -65,7 +66,6 @@
             this.btnPolAttach = new System.Windows.Forms.Button();
             this.btnPolUpdate = new System.Windows.Forms.Button();
             this.tips = new System.Windows.Forms.ToolTip(this.components);
-            this.wkBokka = new System.ComponentModel.BackgroundWorker();
             this.label12 = new System.Windows.Forms.Label();
             this.lblDialogIndex = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
@@ -150,6 +150,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.chkKamihr3);
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.cmbTicketUseEach);
             this.groupBox1.Location = new System.Drawing.Point(6, 26);
@@ -158,6 +159,17 @@
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "動作設定";
+            // 
+            // chkKamihr3
+            // 
+            this.chkKamihr3.AutoSize = true;
+            this.chkKamihr3.Location = new System.Drawing.Point(116, 16);
+            this.chkKamihr3.Name = "chkKamihr3";
+            this.chkKamihr3.Size = new System.Drawing.Size(100, 18);
+            this.chkKamihr3.TabIndex = 4;
+            this.chkKamihr3.Text = "カミール#3モード";
+            this.chkKamihr3.UseVisualStyleBackColor = true;
+            this.chkKamihr3.CheckedChanged += new System.EventHandler(this.chkKamihr3_CheckedChanged);
             // 
             // label4
             // 
@@ -256,7 +268,7 @@
             // 
             // btnMenuIndexClear
             // 
-            this.btnMenuIndexClear.Location = new System.Drawing.Point(151, 15);
+            this.btnMenuIndexClear.Location = new System.Drawing.Point(157, 15);
             this.btnMenuIndexClear.Name = "btnMenuIndexClear";
             this.btnMenuIndexClear.Size = new System.Drawing.Size(28, 65);
             this.btnMenuIndexClear.TabIndex = 3;
@@ -266,7 +278,7 @@
             // 
             // txtMenuIndexBivouac
             // 
-            this.txtMenuIndexBivouac.Location = new System.Drawing.Point(110, 59);
+            this.txtMenuIndexBivouac.Location = new System.Drawing.Point(116, 59);
             this.txtMenuIndexBivouac.Maximum = new decimal(new int[] {
             99,
             0,
@@ -290,7 +302,7 @@
             // 
             // txtMenuIndexArea
             // 
-            this.txtMenuIndexArea.Location = new System.Drawing.Point(110, 37);
+            this.txtMenuIndexArea.Location = new System.Drawing.Point(116, 37);
             this.txtMenuIndexArea.Maximum = new decimal(new int[] {
             99,
             0,
@@ -314,7 +326,7 @@
             // 
             // txtMenuIndexWorksCall
             // 
-            this.txtMenuIndexWorksCall.Location = new System.Drawing.Point(110, 15);
+            this.txtMenuIndexWorksCall.Location = new System.Drawing.Point(116, 15);
             this.txtMenuIndexWorksCall.Maximum = new decimal(new int[] {
             99,
             0,
@@ -491,12 +503,6 @@
             this.tips.SetToolTip(this.btnPolUpdate, "リストを更新する");
             this.btnPolUpdate.UseVisualStyleBackColor = true;
             this.btnPolUpdate.Click += new System.EventHandler(this.btnPolUpdate_Click);
-            // 
-            // wkBokka
-            // 
-            this.wkBokka.WorkerSupportsCancellation = true;
-            this.wkBokka.DoWork += new System.ComponentModel.DoWorkEventHandler(this.wkBokka_DoWork);
-            this.wkBokka.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.wkBokka_RunWorkerCompleted);
             // 
             // label12
             // 
@@ -776,7 +782,6 @@
 
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.ComboBox cmbTicketUseEach;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.GroupBox groupBox2;
@@ -821,7 +826,6 @@
         private System.Windows.Forms.Label lblStatus;
         public System.Windows.Forms.Label lblTicket;
         public System.Windows.Forms.Label lblCP;
-        public System.ComponentModel.BackgroundWorker wkBokka;
         private System.Windows.Forms.Button btnCouToWaypoint;
         private System.Windows.Forms.Button btnWaypointToCOU;
         private System.Windows.Forms.Timer timMonitor;
@@ -832,6 +836,8 @@
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.Label lblLoginStatus;
         private System.Windows.Forms.Button btnStop;
+        private System.Windows.Forms.CheckBox chkKamihr3;
+        private System.Windows.Forms.ComboBox cmbTicketUseEach;
     }
 }
 

@@ -16,6 +16,7 @@ namespace Bokka
         public int FormPosX { get; set; }
         public int FormPosY { get; set; }
         public int TicketUseEach { get; set; }
+        public bool Kamihr3 { get; set; }
         public int LimitTicket { get; set; }
         public int LimitCp { get; set; }
         public int MenuIndexWorksCall { get; set; }
@@ -69,6 +70,7 @@ namespace Bokka
                     FormPosX = v.FormPosX;
                     FormPosY = v.FormPosY;
                     TicketUseEach = v.TicketUseEach;
+                    Kamihr3 = v.Kamihr3;
                     LimitTicket = v.LimitTicket;
                     LimitCp = v.LimitCp;
                     MenuIndexWorksCall = v.MenuIndexWorksCall;
@@ -82,6 +84,7 @@ namespace Bokka
                 FormPosX = player.FormPosX;
                 FormPosY = player.FormPosY;
                 TicketUseEach = player.TicketUseEach;
+                Kamihr3 = player.Kamihr3;
                 LimitTicket = player.LimitTicket;
                 LimitCp = player.LimitCp;
                 MenuIndexWorksCall = player.MenuIndexWorksCall;
@@ -145,6 +148,7 @@ namespace Bokka
                     v.FormPosX = FormPosX;
                     v.FormPosY = FormPosY;
                     v.TicketUseEach = TicketUseEach;
+                    v.Kamihr3 = Kamihr3;
                     v.LimitTicket = LimitTicket;
                     v.LimitCp = LimitCp;
                     v.MenuIndexWorksCall = MenuIndexWorksCall;
@@ -159,6 +163,7 @@ namespace Bokka
                 player.FormPosX = FormPosX;
                 player.FormPosY = FormPosY;
                 player.TicketUseEach = TicketUseEach;
+                player.Kamihr3 = Kamihr3;
                 player.LimitTicket = LimitTicket;
                 player.LimitCp = LimitCp;
                 player.MenuIndexWorksCall = MenuIndexWorksCall;
@@ -207,6 +212,7 @@ namespace Bokka
         public int FormPosX { get; set; }
         public int FormPosY { get; set; }
         public int TicketUseEach { get; set; }
+        public bool Kamihr3 { get; set; }
         public int LimitTicket { get; set; }
         public int LimitCp { get; set; }
         public int MenuIndexWorksCall { get; set; }
@@ -217,6 +223,7 @@ namespace Bokka
             FormPosX = 0;
             FormPosY = 0;
             TicketUseEach = 1;
+            Kamihr3 = false;
             LimitTicket = 0;
             LimitCp = 1000;
             MenuIndexWorksCall = -1;

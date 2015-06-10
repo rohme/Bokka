@@ -63,7 +63,10 @@ namespace Bokka
         private int remainCp = 0;
         private int remainTicket = 0;
         Random rnd = new Random();
+        private Thread thMainThread;
+        private string lastPlayerName = "Player";
 
+        #region コンストラクタ
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -71,6 +74,7 @@ namespace Bokka
         {
             InitializeComponent();
         }
+        #endregion
 
         #region フォーム処理
         /// <summary>
@@ -134,6 +138,7 @@ namespace Bokka
             lblCP.Text = "--";
             for (int i = 1; i <= 3; i++) cmbTicketUseEach.Items.Add(i);
             cmbTicketUseEach.Text = settings.TicketUseEach.ToString();
+            chkKamihr3.Checked = settings.Kamihr3;
             for (int i = 0; i <= 14; i++) cmbLimitTicket.Items.Add(i);
             cmbLimitTicket.Text = settings.LimitTicket.ToString();
             txtLimitCp.Value = settings.LimitCp;
@@ -170,9 +175,9 @@ namespace Bokka
             }
             else
             {
-                saveSettings();
                 start();
             }
+            saveSettings();
         }
         /// <summary>
         /// 開始
@@ -182,18 +187,40 @@ namespace Bokka
 
             btnExec.Text = "停　　止";
             isExec = true;
-            wkBokka.RunWorkerAsync();
+            //スレッド開始
+            thMainThread = new Thread(mainThread)
+            {
+                IsBackground = true
+            };
+            thMainThread.Start();
         }
         /// <summary>
         /// 停止
         /// </summary>
-        private void stop()
+        private void stop(bool iManualStop = true, string iMessage="停止しました", MessageKind iMessageKind = MessageKind.Normal)
         {
-            if (wkBokka.IsBusy) wkBokka.CancelAsync();
-            //setMessage("停止しました", MessageKind.Normal);
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke
+                ((MethodInvoker)delegate() { stop(iManualStop, iMessage, iMessageKind); });
+                return;
+            }
 
             btnExec.Text = "開　　始";
             isExec = false;
+
+            //スレッド停止
+            if (iManualStop && thMainThread != null && thMainThread.IsAlive)
+            {
+                thMainThread.Abort();
+                thMainThread = null;
+            }
+            setMessage(iMessage, iMessageKind);
+            //if (iManualStop)
+            //{
+                SystemSounds.Asterisk.Play();
+            //}
+
         }
         /// <summary>
         /// モニタ用タイマーイベント
@@ -202,6 +229,25 @@ namespace Bokka
         /// <param name="e"></param>
         private void timMonitor_Tick(object sender, EventArgs e)
         {
+            //ログイン状態監視
+            if (api.Player.Name != null)
+            {
+                btnExec.Enabled = true;
+                //if (string.IsNullOrEmpty(lastPlayerName))
+                //{
+                //    settings.Load(api.Player.Name);
+                //    initForm();
+                //}
+                lastPlayerName = api.Player.Name;
+            }
+            else
+            {
+                btnExec.Enabled = false;
+                lastPlayerName = string.Empty;
+            }
+            
+
+            //ダイアログ監視
             List<string> regStr = new List<string>();
             if (api.Menu.IsMenuOpen)
             {
@@ -222,10 +268,11 @@ namespace Bokka
                 }
 
             }
+            //チャット監視
             EliteAPI.ChatEntry cl = api.Chat.GetNextChatLine();
             while (cl != null)
             {
-                Console.WriteLine(string.Format("type:{0} idx1:{1} idx2:{2} {3}", cl.ChatType, cl.Index1, cl.Index2, cl.Text));
+                //Console.WriteLine(string.Format("type:{0} idx1:{1} idx2:{2} {3}", cl.ChatType, cl.Index1, cl.Index2, cl.Text));
                 if ((cl.ChatType == 152 || cl.ChatType == 144) &&
                     MiscTools.GetRegexString(cl.Text, Constants.CHAT_TICKET_REMAIN, out regStr))
                 {
@@ -247,6 +294,10 @@ namespace Bokka
         private void cmbTicketUseEach_SelectedIndexChanged(object sender, EventArgs e)
         {
             settings.TicketUseEach = int.Parse(cmbTicketUseEach.Text);
+        }
+        private void chkKamihr3_CheckedChanged(object sender, EventArgs e)
+        {
+            settings.Kamihr3 = chkKamihr3.Checked;
         }
         private void cmbLimitTicket_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -277,258 +328,194 @@ namespace Bokka
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void wkBokka_DoWork(object sender, DoWorkEventArgs e)
+        private void mainThread()
         {
-            BackgroundWorker worker = (BackgroundWorker)sender;
-
-            setMessage("開始しました", MessageKind.Execute);
-            //開始前チェック処理
-            if (api.Player.HasKeyItem(2214) ||  //ケイザックFB設営物資
-                api.Player.HasKeyItem(2215) ||  //エヌティエルFB設営物資
-                api.Player.HasKeyItem(2216) ||  //モリマーFB設営物資
-                api.Player.HasKeyItem(2403) ||  //マリアミFB設営物資
-                api.Player.HasKeyItem(2404) ||  //ヨルシアFB設営物資
-                api.Player.HasKeyItem(2463))    //カミールFB設営物資
+            try
             {
-                setMessage("FB設営物資を持っている", MessageKind.Critical);
-                e.Cancel = true;
-                return;
-            }
-
-            for (int l = 0; l < Constants.MAX_LOOP_COUNT; l++)
-            {
-                //COU NPCチェック
-                EliteAPI.XiEntity entCouNpc = api.Entity.GetEntity(Constants.NPC_INDEX_COU);
-                if (entCouNpc.Distance > 5.0f)
+                setMessage("開始しました", MessageKind.Execute);
+                //開始前チェック処理
+                if (api.Player.HasKeyItem(2214) ||  //ケイザックFB設営物資
+                    api.Player.HasKeyItem(2215) ||  //エヌティエルFB設営物資
+                    api.Player.HasKeyItem(2216) ||  //モリマーFB設営物資
+                    api.Player.HasKeyItem(2403) ||  //マリアミFB設営物資
+                    api.Player.HasKeyItem(2404) ||  //ヨルシアFB設営物資
+                    api.Player.HasKeyItem(2463))    //カミールFB設営物資
                 {
-                    setMessage("COUのカウンター近くで実行してください", MessageKind.Critical);
-                    e.Cancel = true;
-                    return;
-                }
-                //メニューを閉じる
-                closeMenu();
-
-                //キャンセルチェック
-                if (worker.CancellationPending)
-                {
-                    setMessage("キャンセルしました", MessageKind.Normal);
-                    e.Cancel = true;
+                    stop(false, "FB設営物資を持っている", MessageKind.Critical);
                     return;
                 }
 
-                //COUカウンター ワークスコール受領
-                setMessage("ワークスコール受領中", MessageKind.Execute);
-                faceTo(Constants.NPC_INDEX_COU);
-                talkToNpcWaitDialogOpen(Constants.NPC_INDEX_COU);
-                waitDialogTitle(Constants.DIALOG_QUESTION_COU1); //どうしますか？（チケット:([0-9]*)枚）
-                if (remainTicket <= settings.LimitTicket)
+                for (int l = 0; l < Constants.MAX_LOOP_COUNT; l++)
                 {
-                    setMessage(string.Format("チケットが{0}枚以下になったので停止", settings.LimitTicket), MessageKind.Normal);
-                    return;
-                }
-                setDialogIndex(0, 3);
-                waitDialogTitle(Constants.DIALOG_QUESTION_COU2); //種類を選んでください。
-                setDialogIndex(2, 3);
-                waitDialogTitle(Constants.DIALOG_QUESTION_COU3); //どのワークスコールを受けますか？
-                if (settings.MenuIndexWorksCall >= 0)
-                    setDialogIndex((ushort)settings.MenuIndexWorksCall, 3);
-                else
-                {
-                    setMessage("行き先を選択", MessageKind.Warning);
-                    SystemSounds.Asterisk.Play();
-                    settings.MenuIndexWorksCall = getSelectedDialogIndex();
-                    setNumericUpDown(txtMenuIndexWorksCall, settings.MenuIndexWorksCall);
+                    //COU NPCチェック
+                    EliteAPI.XiEntity entCouNpc = api.Entity.GetEntity(Constants.NPC_INDEX_COU);
+                    if (entCouNpc.Distance > 5.0f)
+                    {
+                        stop(false, "COUのカウンター近くで実行してください", MessageKind.Critical);
+                        return;
+                    }
+                    //メニューを閉じる
+                    closeMenu();
+
+                    //COUカウンター ワークスコール受領
                     setMessage("ワークスコール受領中", MessageKind.Execute);
-                }
-                waitDialogTitle(Constants.DIALOG_QUESTION_COU4); //何枚使用しますか？（チケット:([0-9]*)枚）
-                ushort indexTicket = 0;
-                if (remainTicket >= settings.TicketUseEach)
-                    indexTicket = (ushort)(settings.TicketUseEach - 1);
-                else
-                    indexTicket = (ushort)(remainTicket - 1);
-                setDialogIndex(indexTicket, 3);
-                waitDialogTitle(Constants.DIALOG_QUESTION_COU5); //([0-9]*)枚でよろしいですね？
-                setDialogIndex(0, 3);
-                //キャンセルチェック
-                if (worker.CancellationPending)
-                {
-                    setMessage("キャンセルしました", MessageKind.Normal);
-                    e.Cancel = true;
-                    return;
-                }
+                    faceTo(Constants.NPC_INDEX_COU);
+                    talkToNpcWaitDialogOpen(Constants.NPC_INDEX_COU);
+                    waitDialogTitle(Constants.DIALOG_QUESTION_COU1); //どうしますか？（チケット:([0-9]*)枚）
+                    if (remainTicket <= settings.LimitTicket)
+                    {
+                        stop(false, string.Format("チケットが{0}枚以下になったので停止", settings.LimitTicket), MessageKind.Normal);
+                        return;
+                    }
+                    setDialogIndex(0, 3);
+                    waitDialogTitle(Constants.DIALOG_QUESTION_COU2); //種類を選んでください。
+                    setDialogIndex(2, 3);
+                    waitDialogTitle(Constants.DIALOG_QUESTION_COU3); //どのワークスコールを受けますか？
+                    if (settings.MenuIndexWorksCall >= 0)
+                        setDialogIndex((ushort)settings.MenuIndexWorksCall, 3);
+                    else
+                    {
+                        setMessage("行き先を選択", MessageKind.Warning);
+                        SystemSounds.Asterisk.Play();
+                        settings.MenuIndexWorksCall = getSelectedDialogIndex();
+                        setNumericUpDown(txtMenuIndexWorksCall, settings.MenuIndexWorksCall);
+                        setMessage("ワークスコール受領中", MessageKind.Execute);
+                    }
+                    waitDialogTitle(Constants.DIALOG_QUESTION_COU4); //何枚使用しますか？（チケット:([0-9]*)枚）
+                    ushort indexTicket = 0;
+                    if (remainTicket >= settings.TicketUseEach)
+                        indexTicket = (ushort)(settings.TicketUseEach - 1);
+                    else
+                        indexTicket = (ushort)(remainTicket - 1);
+                    setDialogIndex(indexTicket, 3);
+                    waitDialogTitle(Constants.DIALOG_QUESTION_COU5); //([0-9]*)枚でよろしいですね？
+                    setDialogIndex(0, 3);
 
-                //COUからWaypointまで移動
-                setMessage("Waypointまで移動中", MessageKind.Execute);
-                moveCouToWaypoint(WayDirectionKind.CouToWaypoint);
-                //キャンセルチェック
-                if (worker.CancellationPending)
-                {
-                    setMessage("キャンセルしました", MessageKind.Normal);
-                    e.Cancel = true;
-                    return;
-                }
-
-                //Waypoint
-                setMessage("ワープ先選択中", MessageKind.Execute);
-                faceTo(Constants.NPC_INDEX_COU_WAYPOINT);
-                talkToNpcWaitDialogOpen(Constants.NPC_INDEX_COU_WAYPOINT);
-                //エリア
-                waitDialogTitle(Constants.DIALOG_QUESTION_WAYPOINT1); //ワープ先を選択（所有ポイント:([0-9]*)cp）
-                if (remainCp <= settings.LimitCp)
-                {
-                    setMessage(string.Format("Cpが{0}以下になったので停止", settings.LimitCp), MessageKind.Normal);
-                    return;
-                }
-                if (settings.MenuIndexArea >= 0)
-                    setDialogIndex((ushort)settings.MenuIndexArea, 3);
-                else
-                {
-                    setMessage("エリアを選択してください", MessageKind.Warning);
-                    SystemSounds.Asterisk.Play();
-                    settings.MenuIndexArea = getSelectedDialogIndex();
-                    setNumericUpDown(txtMenuIndexArea, settings.MenuIndexArea);
-                    setMessage("ワープ先選択中", MessageKind.Execute);
-                    Thread.Sleep(settings.BaseWait);
-                }
-                //ビバック
-                waitDialogTitle(Constants.DIALOG_QUESTION_WAYPOINT1); //ワープ先を選択（所有ポイント:([0-9]*)cp）
-                if (settings.MenuIndexBivouac >= 0)
-                    setDialogIndex((ushort)settings.MenuIndexBivouac, 3);
-                else
-                {
-                    setMessage("ビバックを選択してください", MessageKind.Warning);
-                    SystemSounds.Asterisk.Play();
-                    settings.MenuIndexBivouac = getSelectedDialogIndex();
-                    setNumericUpDown(txtMenuIndexBivouac, settings.MenuIndexBivouac);
-                    setMessage("ワープ先選択中", MessageKind.Execute);
-                }
-                //ワープ中
-                setMessage("ワープ待機中", MessageKind.Execute);
-                waitZoneing();
-                //キャンセルチェック
-                if (worker.CancellationPending)
-                {
-                    setMessage("キャンセルしました", MessageKind.Normal);
-                    e.Cancel = true;
-                    return;
-                }
-
-                //Administratorへ物資を渡す
-                setMessage("近くのAdministratorを検索", MessageKind.Execute);
-                int adminIndex = findNpcIndexFromName("Bivouac#([0-9]*) Administrator");
-                if (adminIndex >= 0)
-                {
-                    EliteAPI.XiEntity adminEntity = api.Entity.GetEntity(adminIndex);
+                    //COUからWaypointまで移動
                     setMessage("Waypointまで移動中", MessageKind.Execute);
-                    //moveTo(adminEntity.X, adminEntity.Z, (float)(0.5f + (1.5f * rnd.NextDouble())));
-                    moveTo(adminEntity.X, adminEntity.Z, (float)(4.0f + (1.0f * rnd.NextDouble())));
-                    setMessage("Administratorへ物資を渡し中", MessageKind.Execute);
-                    faceTo(adminEntity.X, adminEntity.Z);
-                    talkToNpcWaitTalkFinish(adminIndex);
-                }
-                else
-                {
-                    setMessage("Administratorが見つからない", MessageKind.Critical);
-                    e.Cancel = true;
-                    return;
-                }
-                //キャンセルチェック
-                if (worker.CancellationPending)
-                {
-                    setMessage("キャンセルしました", MessageKind.Normal);
-                    e.Cancel = true;
-                    return;
-                }
+                    moveCouToWaypoint(WayDirectionKind.CouToWaypoint);
 
-                //AdministratorからWaypointまで移動
-                setMessage("近くのWaypointを検索", MessageKind.Execute);
-                int waypointIndex = findNpcIndexFromName("Waypoint");
-                if (waypointIndex >= 0)
-                {
-                    EliteAPI.XiEntity waypointEntity = api.Entity.GetEntity(waypointIndex);
+                    //Waypoint
+                    setMessage("ワープ先選択中", MessageKind.Execute);
+                    faceTo(Constants.NPC_INDEX_COU_WAYPOINT);
+                    talkToNpcWaitDialogOpen(Constants.NPC_INDEX_COU_WAYPOINT);
+                    //エリア
+                    waitDialogTitle(Constants.DIALOG_QUESTION_WAYPOINT1); //ワープ先を選択（所有ポイント:([0-9]*)cp）
+                    if (remainCp <= settings.LimitCp)
+                    {
+                        stop(false, string.Format("Cpが{0}以下になったので停止", settings.LimitCp), MessageKind.Normal);
+                        return;
+                    }
+                    if (settings.MenuIndexArea >= 0)
+                        setDialogIndex((ushort)settings.MenuIndexArea, 3);
+                    else
+                    {
+                        setMessage("エリアを選択してください", MessageKind.Warning);
+                        SystemSounds.Asterisk.Play();
+                        settings.MenuIndexArea = getSelectedDialogIndex();
+                        setNumericUpDown(txtMenuIndexArea, settings.MenuIndexArea);
+                        setMessage("ワープ先選択中", MessageKind.Execute);
+                        Thread.Sleep(settings.BaseWait);
+                    }
+                    //ビバック
+                    waitDialogTitle(Constants.DIALOG_QUESTION_WAYPOINT1); //ワープ先を選択（所有ポイント:([0-9]*)cp）
+                    if (settings.MenuIndexBivouac >= 0)
+                        setDialogIndex((ushort)settings.MenuIndexBivouac, 3);
+                    else
+                    {
+                        setMessage("ビバックを選択してください", MessageKind.Warning);
+                        SystemSounds.Asterisk.Play();
+                        settings.MenuIndexBivouac = getSelectedDialogIndex();
+                        setNumericUpDown(txtMenuIndexBivouac, settings.MenuIndexBivouac);
+                        setMessage("ワープ先選択中", MessageKind.Execute);
+                    }
+                    //ワープ中
+                    setMessage("ワープ待機中", MessageKind.Execute);
+                    waitZoneing();
+
+                    //Administratorへ物資を渡す
+                    setMessage("近くのAdministratorを検索", MessageKind.Execute);
+                    int adminIndex = findNpcIndexFromName("Bivouac#([0-9]*) Administrator");
+                    if (adminIndex >= 0)
+                    {
+                        EliteAPI.XiEntity adminEntity = api.Entity.GetEntity(adminIndex);
+                        setMessage("Waypointまで移動中", MessageKind.Execute);
+                        //moveTo(adminEntity.X, adminEntity.Z, (float)(0.5f + (1.5f * rnd.NextDouble())));
+                        //moveTo(adminEntity.X, adminEntity.Z, (float)(4.0f + (1.0f * rnd.NextDouble())));
+                        moveTo(adminEntity.X, adminEntity.Z, 5.5f);
+                        setMessage("Administratorへ物資を渡し中", MessageKind.Execute);
+                        if (!settings.Kamihr3)
+                        {
+                            faceTo(adminEntity.X, adminEntity.Z);
+                        }
+                        talkToNpcWaitTalkFinish(adminIndex);
+                    }
+                    else
+                    {
+                        stop(false, "Administratorが見つからない", MessageKind.Critical);
+                        return;
+                    }
+
+                    //AdministratorからWaypointまで移動
+                    setMessage("近くのWaypointを検索", MessageKind.Execute);
+                    int waypointIndex = findNpcIndexFromName("Waypoint");
+                    if (waypointIndex >= 0)
+                    {
+                        EliteAPI.XiEntity waypointEntity = api.Entity.GetEntity(waypointIndex);
+                        setMessage("Waypointまで移動中", MessageKind.Execute);
+                        //moveTo(waypointEntity.X, waypointEntity.Z, (float)(0.5f + (1.5f * rnd.NextDouble())));
+                        moveTo(waypointEntity.X, waypointEntity.Z, (float)(4.0f + (1.0f * rnd.NextDouble())));
+                        Thread.Sleep(500);
+                        if (!settings.Kamihr3)
+                        {
+                            faceTo(waypointEntity.X, waypointEntity.Z);
+                        }
+                    }
+                    else
+                    {
+                        stop(false, "Waypointが見つからない", MessageKind.Critical);
+                        return;
+                    }
+
+                    //Waypoint
+                    setMessage("ワープ先選択中", MessageKind.Execute);
+                    talkToNpcWaitDialogOpen(waypointIndex);
+                    //エリア
+                    waitDialogTitle(Constants.DIALOG_QUESTION_WAYPOINT1); //ワープ先を選択（所有ポイント:([0-9]*)cp）
+                    setDialogIndex(2, 3);
+                    //ビバック
+                    waitDialogTitle(Constants.DIALOG_QUESTION_WAYPOINT1); //ワープ先を選択（所有ポイント:([0-9]*)cp）
+                    setDialogIndex(1, 3);
+                    //ワープ中
+                    setMessage("ワープ待機中", MessageKind.Execute);
+                    waitZoneing();
+
+                    //WaypointからCOUまで移動
                     setMessage("Waypointまで移動中", MessageKind.Execute);
-                    //moveTo(waypointEntity.X, waypointEntity.Z, (float)(0.5f + (1.5f * rnd.NextDouble())));
-                    moveTo(waypointEntity.X, waypointEntity.Z, (float)(4.0f + (1.0f * rnd.NextDouble())));
-                    Thread.Sleep(500);
-                    faceTo(waypointEntity.X, waypointEntity.Z);
-                }
-                else
-                {
-                    setMessage("Waypointが見つからない", MessageKind.Critical);
-                    e.Cancel = true;
-                    return;
-                }
-                //キャンセルチェック
-                if (worker.CancellationPending)
-                {
-                    setMessage("キャンセルしました", MessageKind.Normal);
-                    e.Cancel = true;
-                    return;
-                }
+                    moveCouToWaypoint(WayDirectionKind.WaypointToCou);
 
-                //Waypoint
-                setMessage("ワープ先選択中", MessageKind.Execute);
-                faceTo(waypointIndex);
-                talkToNpcWaitDialogOpen(waypointIndex);
-                //エリア
-                waitDialogTitle(Constants.DIALOG_QUESTION_WAYPOINT1); //ワープ先を選択（所有ポイント:([0-9]*)cp）
-                setDialogIndex(2, 3);
-                //ビバック
-                waitDialogTitle(Constants.DIALOG_QUESTION_WAYPOINT1); //ワープ先を選択（所有ポイント:([0-9]*)cp）
-                setDialogIndex(1, 3);
-                //ワープ中
-                setMessage("ワープ待機中", MessageKind.Execute);
-                waitZoneing();
-                //キャンセルチェック
-                if (worker.CancellationPending)
-                {
-                    setMessage("キャンセルしました", MessageKind.Normal);
-                    e.Cancel = true;
-                    return;
+                    //COUカウンター ワークスコール報告
+                    setMessage("ワークスコール報告中", MessageKind.Execute);
+                    faceTo(Constants.NPC_INDEX_COU);
+                    talkToNpcWaitDialogOpen(Constants.NPC_INDEX_COU);
+                    waitDialogTitle(Constants.DIALOG_QUESTION_COU1); //どうしますか？（チケット:([0-9]*)枚）
+                    setDialogIndex(0, 3);
+                    waitDialogTitle(Constants.DIALOG_QUESTION_COU2); //種類を選んでください。
+                    setDialogIndex(0, 3);
+                    waitDialogTitle(Constants.DIALOG_QUESTION_COU6); //どのワークスコールを報告しますか？
+                    setDialogIndex(0, 3);
+                    while (api.Menu.IsMenuOpen) Thread.Sleep(settings.BaseWait);
                 }
-
-                //WaypointからCOUまで移動
-                setMessage("Waypointまで移動中", MessageKind.Execute);
-                moveCouToWaypoint(WayDirectionKind.WaypointToCou);
-                //キャンセルチェック
-                if (worker.CancellationPending)
-                {
-                    setMessage("キャンセルしました", MessageKind.Normal);
-                    e.Cancel = true;
-                    return;
-                }
-
-                //COUカウンター ワークスコール報告
-                setMessage("ワークスコール報告中", MessageKind.Execute);
-                faceTo(Constants.NPC_INDEX_COU);
-                talkToNpcWaitDialogOpen(Constants.NPC_INDEX_COU);
-                waitDialogTitle(Constants.DIALOG_QUESTION_COU1); //どうしますか？（チケット:([0-9]*)枚）
-                setDialogIndex(0, 3);
-                waitDialogTitle(Constants.DIALOG_QUESTION_COU2); //種類を選んでください。
-                setDialogIndex(0, 3);
-                waitDialogTitle(Constants.DIALOG_QUESTION_COU6); //どのワークスコールを報告しますか？
-                setDialogIndex(0, 3);
-                while (api.Menu.IsMenuOpen) Thread.Sleep(settings.BaseWait);
             }
-
-            //e.Result = "すべて完了";
-        }
-        private void wkBokka_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            if (e.Cancelled)
+            catch (ThreadAbortException e)
             {
-                SystemSounds.Exclamation.Play();
-                //MessageBox.Show("キャンセルされました");
+                Console.WriteLine("スレッド停止");
             }
-            else
+            finally
             {
-                closeMenu();
-                SystemSounds.Asterisk.Play();
-                // 処理結果の表示
-                //this.Text = e.Result.ToString();
-                //MessageBox.Show("正常に完了");
+                //暴走防止
+                api.ThirdParty.KeyUp((byte)KeyCode.NP_Number8);
             }
-            stop();
         }
         /// <summary>
         /// メニューを閉じる
@@ -563,15 +550,15 @@ namespace Bokka
         /// <param name="iNpcIndex"></param>
         private void talkToNpcWaitDialogOpen(int iNpcIndex)
         {
-            if (api.Player.ViewMode != (int)ViewMode.ThirdPerson)
-            {
-                api.Player.ViewMode = (int)ViewMode.ThirdPerson;
-                Thread.Sleep(1000);
-            }
+            //if (api.Player.ViewMode != (int)ViewMode.ThirdPerson)
+            //{
+            //    api.Player.ViewMode = (int)ViewMode.ThirdPerson;
+            //    Thread.Sleep(1000);
+            //}
 
-            setTarget(iNpcIndex);
             while (!api.Menu.IsMenuOpen)
             {
+                setTarget(iNpcIndex);
                 api.ThirdParty.KeyPress(EliteMMO.API.Keys.RETURN);
                 Thread.Sleep(settings.BaseWait);
             }
@@ -582,16 +569,17 @@ namespace Bokka
         /// <param name="iNpcIndex"></param>
         private void talkToNpcWaitTalkFinish(int iNpcIndex)
         {
-            if (api.Player.ViewMode != (int)ViewMode.ThirdPerson)
-            {
-                api.Player.ViewMode = (int)ViewMode.ThirdPerson;
-                Thread.Sleep(1000);
-            }
+            //if (api.Player.ViewMode != (int)ViewMode.ThirdPerson)
+            //{
+            //    api.Player.ViewMode = (int)ViewMode.ThirdPerson;
+            //    Thread.Sleep(1000);
+            //}
 
-            setTarget(iNpcIndex);
             while (api.Player.Status != (uint)Status.Event)
             {
+                setTarget(iNpcIndex);
                 api.ThirdParty.KeyPress(EliteMMO.API.Keys.RETURN);
+                Thread.Sleep(settings.BaseWait);
             }
             while (api.Player.Status == (uint)Status.Event)
             {
@@ -729,10 +717,10 @@ namespace Bokka
                 for (int i = 0; i < 1000; i++)
                 {
                     //Console.WriteLine("dist={0}", getDistance(api.Player.X, api.Player.Z, iX, iZ));
+                    if (getDistance(api.Player.X, api.Player.Z, iX, iZ) <= iStopDistance) return true;
                     if (api.Player.ViewMode != (int)ViewMode.FirstPerson) api.Player.ViewMode = (int)ViewMode.FirstPerson;
                     faceTo(iX, iZ);
                     api.ThirdParty.KeyDown((byte)KeyCode.NP_Number8);
-                    if (getDistance(api.Player.X, api.Player.Z, iX, iZ) <= iStopDistance) return true;
                     Thread.Sleep(10);
                 }
             }
@@ -836,9 +824,11 @@ namespace Bokka
                     break;
                 case MessageKind.Warning:
                     toolStrip.BackColor = Color.FromArgb(0xFF, 0xFF, 0x80);
+                    SystemSounds.Asterisk.Play();
                     break;
                 case MessageKind.Critical:
                     toolStrip.BackColor = Color.FromArgb(0xFF, 0x80, 0x80);
+                    SystemSounds.Hand.Play();
                     break;
                 default:
                     break;
@@ -850,7 +840,10 @@ namespace Bokka
         private bool saveSettings()
         {
             if (api.Player.Name.Length == 0 || api.Player.LoginStatus != (int)LoginStatus.LoggedIn) return false;
+            settings.FormPosX = this.Left;
+            settings.FormPosY = this.Top;
             settings.TicketUseEach = int.Parse(cmbTicketUseEach.Text);
+            settings.Kamihr3 = chkKamihr3.Checked;
             settings.LimitTicket = int.Parse(cmbLimitTicket.Text);
             settings.LimitCp = (int)txtLimitCp.Value;
             settings.MenuIndexWorksCall = (int)txtMenuIndexWorksCall.Value;
@@ -987,6 +980,7 @@ namespace Bokka
             api.ThirdParty.KeyPress((byte)KeyCode.NP_Number8);
         }
         #endregion
+
 
     }
 }
