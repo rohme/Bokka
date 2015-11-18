@@ -11,7 +11,7 @@ namespace Bokka
         public const int FILELOCK_RETRY_COUNT = 10;
         public const string WINDOW_TITLE_FORMAT = "{0} {1} {2}";
         public const int NPC_INDEX_COU = 57;
-        public const int NPC_INDEX_COU_WAYPOINT = 175;
+        public const int NPC_INDEX_COU_WAYPOINT = 176;
         public const string DIALOG_QUESTION_COU1 = "どうしますか？（チケット:([0-9]*)枚）";
         public const string DIALOG_QUESTION_COU2 = "種類を選んでください。";
         public const string DIALOG_QUESTION_COU3 = "どのワークスコールを受けますか？";

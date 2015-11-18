@@ -491,7 +491,7 @@ namespace Bokka
                     waitZoneing();
 
                     //WaypointからCOUまで移動
-                    setMessage("Waypointまで移動中", MessageKind.Execute);
+                    setMessage("COUカウンターまで移動中", MessageKind.Execute);
                     moveCouToWaypoint(WayDirectionKind.WaypointToCou);
 
                     //COUカウンター ワークスコール報告
