@@ -5,13 +5,13 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using EliteMMO.API;
-using System.Threading;
-using System.Media;
 
 namespace Bokka
 {
@@ -197,12 +197,12 @@ namespace Bokka
         /// <summary>
         /// 停止
         /// </summary>
-        private void stop(bool iManualStop = true, string iMessage="停止しました", MessageKind iMessageKind = MessageKind.Normal)
+        private void stop(bool iManualStop = true, string iMessage = "停止しました", MessageKind iMessageKind = MessageKind.Normal)
         {
             if (this.InvokeRequired)
             {
                 this.BeginInvoke
-                ((MethodInvoker)delegate() { stop(iManualStop, iMessage, iMessageKind); });
+                ((MethodInvoker)delegate () { stop(iManualStop, iMessage, iMessageKind); });
                 return;
             }
 
@@ -218,7 +218,7 @@ namespace Bokka
             setMessage(iMessage, iMessageKind);
             //if (iManualStop)
             //{
-                SystemSounds.Asterisk.Play();
+            SystemSounds.Asterisk.Play();
             //}
 
         }
@@ -245,7 +245,7 @@ namespace Bokka
                 btnExec.Enabled = false;
                 lastPlayerName = string.Empty;
             }
-            
+
 
             //ダイアログ監視
             List<string> regStr = new List<string>();
@@ -659,11 +659,11 @@ namespace Bokka
                 for (int i = 1; i < movePoint.Count; i++) points.Add(movePoint[i]);
             else if (iWayDirection == WayDirectionKind.WaypointToCou)
                 for (int i = movePoint.Count - 2; i >= 0; i--) points.Add(movePoint[i]);
-            
+
             for (int i = 0; i < points.Count; i++)
             {
                 Point rndPoint = getRandomPoint(points[i]);
-                if(!moveTo(rndPoint.X, rndPoint.Z)) return false;
+                if (!moveTo(rndPoint.X, rndPoint.Z)) return false;
             }
             return true;
         }
@@ -810,7 +810,7 @@ namespace Bokka
             if (this.InvokeRequired)
             {
                 this.BeginInvoke
-                ((MethodInvoker)delegate() { setMessage(iMessage, iKind); });
+                ((MethodInvoker)delegate () { setMessage(iMessage, iKind); });
                 return;
             }
             lblMessage.Text = iMessage;
@@ -856,7 +856,7 @@ namespace Bokka
             if (this.InvokeRequired)
             {
                 this.BeginInvoke
-                ((MethodInvoker)delegate() { setNumericUpDown(iControl, iValue); });
+                ((MethodInvoker)delegate () { setNumericUpDown(iControl, iValue); });
                 return;
             }
             iControl.Value = iValue;
@@ -923,7 +923,7 @@ namespace Bokka
             if (cmbPol.Text.Length < 1 || cmbPol.Text.IndexOf("(") < 0 || cmbPol.Text.IndexOf(")") < 0) return -1;
             List<string> arg = new List<string>();
             bool reg = MiscTools.GetRegexString(cmbPol.Text, @"(.*)\(([0-9]*)\)", out arg);
-            if (reg && arg.Count>0)
+            if (reg && arg.Count > 0)
             {
                 return int.Parse(arg[1]);
             }
@@ -980,7 +980,5 @@ namespace Bokka
             api.ThirdParty.KeyPress((byte)KeyCode.NP_Number8);
         }
         #endregion
-
-
     }
 }

@@ -81,6 +81,9 @@
     <Content Include="EliteAPI.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="EliteMMO.API.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Resources\IMAGE_SELECT.png" />
     <None Include="Resources\IMAGE_REFRESH.png" />
   </ItemGroup>

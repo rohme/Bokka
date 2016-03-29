@@ -560,7 +560,7 @@
         THF_SP2 = 495,
         Righteous_Guard = 496,
         DRK_SP2 = 497,
-        BST_SP2 = 498 ,
+        BST_SP2 = 498,
         Malinconico = 499,
         Instinctive_Aim = 500,
         Yaegasumi = 501,
@@ -602,8 +602,8 @@
         //-Text That's Been Sent To The ChatLog By You aKa (The Player-)'
         //--------------------------------------------------------------'
         SentSay = 1,			 // = a say message that the user sends
-        SentShout = 2,		   // = a shout message that the user sends
-		SentYell = 3,
+        SentShout = 2,         // = a shout message that the user sends
+        SentYell = 3,
         SentTell = 4,			// = user sends tell to someone else
         SentParty = 5,		   // = user message to Party
         SentLinkShell = 6,	   // = user message to linkshell
@@ -613,13 +613,13 @@
         //----Text That's Been Recieved In ChatLog By Other Players-----'
         //--------------------------------------------------------------'
         RcvdSay = 9,			 // = a say mesage the user recieves from someone else
-        RcvdShout = 10,		  // = incoming shout
-		RcvdYell = 11,
+        RcvdShout = 10,       // = incoming shout
+        RcvdYell = 11,
         RcvdTell = 12,		   // = incoming tell
         RcvdParty = 13,		  // = incoming party message
         RcvdLinkShell = 14,	  // = incoming linkshell text
-        RcvdEmote = 15,			 // = received Emote
-		// Yell???
+        RcvdEmote = 15,          // = received Emote
+                                 // Yell???
 
         //--------------------------------------------------------------'
         //-----------You aKa (The Player's) Fight Log Stuff-------------'
@@ -1932,7 +1932,7 @@
         Chi_Blast = 18,
         Mantra = 19,
         Formless_Strikes = 20,
-		Footwork = 21,
+        Footwork = 21,
         Perfect_Counter = 22,
         Vallation = 23,
         Swordplay = 24,
@@ -1970,7 +1970,7 @@
         Dragon_Breaker = 58,
         Pflug = 59,
         Steal = 60,
-		Despoil = 61,
+        Despoil = 61,
         Flee = 62,
         Hide = 63,
         Sneak_Attack = 64,
@@ -2020,8 +2020,8 @@
         Gambit = 116,
         Liement = 117,
         One_for_All = 118,
-		Rayke = 119,
-		Battuta = 120,
+        Rayke = 119,
+        Battuta = 120,
         Scavenge = 121,
         Shadowbind = 122,
         Camouflage = 123,
@@ -2047,7 +2047,7 @@
         Effusion = 143,
         Sange = 145,
         Yonin = 146,
-		Innin = 147,
+        Innin = 147,
         Futae = 148,
         Ancient_Circle = 157,
         Jump = 158,
@@ -2104,7 +2104,7 @@
         Modus_Veritas = 230,
         Penury = 231,
         Dark_Arts = 232,
-		Stratagems = 233,
+        Stratagems = 233,
         Sublimation = 234,
         Enlightenment = 235,
         Presto = 236,
@@ -2123,8 +2123,8 @@
         Theurgic_Focus = 249,
         Concentric_Pulse = 250,
         Mending_Halation = 251,
-		Radial_Arcana = 252,
-		Relinquish = 253,
+        Radial_Arcana = 252,
+        Relinquish = 253,
         SP_II = 254,
         Pet_commands = 255
 

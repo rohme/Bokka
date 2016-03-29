@@ -22,13 +22,9 @@ namespace Bokka
         public int MenuIndexWorksCall { get; set; }
         public int MenuIndexArea { get; set; }
         public int MenuIndexBivouac { get; set; }
-        //public List<SettingsRunPointPosProperty> RunPoint { get; set; }
-        //public List<SettingsNpcProperty> Npc { get; set; }
-        //public List<SettingsKeyItemProperty> KeyItem { get; set; }
 
         //定数
         private const string XML_FILENAME_SETTINGS = "Bokka.xml";
-        //private const string XML_FILENAME_DATA = "BokkaData.xml";
 
         /// <summary>
         /// コンストラクタ
@@ -92,29 +88,6 @@ namespace Bokka
                 MenuIndexBivouac = player.MenuIndexBivouac;
             }
 
-            //BokkaData.xmlの読み込み
-            //xmlFilename = XML_FILENAME_DATA;
-            //if (File.Exists(xmlFilename))
-            //{
-            //    FileStream fs = new FileStream(xmlFilename, System.IO.FileMode.Open);
-            //    //シリアライズ
-            //    XmlSerializer serializer = new XmlSerializer(typeof(SettingDataProperty));
-            //    //読み込み
-            //    SettingDataProperty xmlData = (SettingDataProperty)serializer.Deserialize(fs);
-            //    fs.Close();
-
-            //    //メンバに設定
-            //    RunPoint = new List<SettingsRunPointPosProperty>();
-            //    foreach (SettingsRunPointPosProperty v in xmlData.RunPoint) RunPoint.Add(v);
-            //    Npc = new List<SettingsNpcProperty>();
-            //    foreach (SettingsNpcProperty v in xmlData.Npc) Npc.Add(v);
-            //    KeyItem = new List<SettingsKeyItemProperty>();
-            //    foreach (SettingsKeyItemProperty v in xmlData.KeyItem) KeyItem.Add(v);
-            //}
-            //else
-            //{
-            //    return false;
-            //}
             return true;
         }
         /// <summary>
