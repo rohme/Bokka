@@ -17,7 +17,7 @@ namespace Bokka
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             //Application.Run(new MainForm());
-            
+
             MainForm mainForm = new MainForm();
             mainForm.ShowDialog();
             System.Environment.Exit(0); //プログラム終了
