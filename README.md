@@ -39,14 +39,14 @@ Waypointの届け先（ビバック）選択時、配達先のメニューイン
 * 管理者権限で実行してください。
 * [Windower4](http://windower.net/)をインストールする。
 * 最新の[EliteAPI (EliteMMO.API)](http://www.elitemmonetwork.com/)をインストールする。  
-* [VisualStudio2013のランタイム](http://www.microsoft.com/ja-JP/download/details.aspx?id=40784)をインストールする。**（必ずx86版を使用してください）**
+* [VisualStudio2015のランタイム](https://www.microsoft.com/ja-JP/download/details.aspx?id=48145)をインストールする。**（必ずx86版を使用してください）**
 * [.Net4.0](http://www.microsoft.com/ja-JP/download/details.aspx?id=17718)をインストールする。
 
 ##今後の予定
 
 ## 開発環境
-* Windows7 Ultimate 64bit
-* [Microsoft Visual Studio Express 2013 C#](http://www.visualstudio.com/ja-jp/products/visual-studio-express-vs.aspx)
+* Windows10 Pro 64bit
+* [Microsoft Visual Studio Express 2015](http://www.visualstudio.com/ja-jp/products/visual-studio-express-vs.aspx)
 * [.NET Framework 4.0](http://www.microsoft.com/ja-jp/net/)
 * [Windower4](http://windower.net/)
 * [EliteAPI (EliteMMO.API)](http://www.elitemmonetwork.com/)
@@ -61,6 +61,10 @@ https://github.com/rohme/
 このソフトウェアを使用したことによって生じたすべての障害・損害・不具合等に関しては、作者は一切の責任を負いません。各自の責任においてご使用ください。  
 
 ## 修正履歴
+* **2017-03-08 Ver0.0.4**
+    - COUワークス近くのWaiypointのインデックスが変更されたので修正
+	- 開発ツールをVisualStudio2015に変更  
+	**[VisualStudio2015のランタイム(x86)](https://www.microsoft.com/ja-jp/download/details.aspx?id=48145)が必要になりますので、インストールをお願いします。**
 * **2015-11-19 Ver0.0.3**
     - COUワークス近くのWaiypointのインデックスが変更されたので修正
 * **2015-06-10 Ver0.0.2**
